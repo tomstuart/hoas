@@ -3,6 +3,7 @@ include RSpec::Matchers
 
 Abs = Struct.new(:proc)
 App = Struct.new(:left, :right)
+Hole = Struct.new(:value)
 
 def abs(*args)
   Abs.new(*args)
@@ -29,9 +30,9 @@ def stringify(term, names = all_names)
     "#{stringify(term.left, names)} #{stringify(term.right, names)}"
   when Abs
     name = names.next
-    "(λ#{name}.#{stringify(term.proc.call(name), names)})"
-  when String
-    term
+    "(λ#{name}.#{stringify(term.proc.call(Hole.new(name)), names)})"
+  when Hole
+    term.value
   end
 end
 
