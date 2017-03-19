@@ -3,7 +3,7 @@ include RSpec::Matchers
 
 Abs = Struct.new(:proc) do
   def fold(abs:, app:)
-    abs.(-> result { proc.(Hole.new(result)).fold(abs: abs, app: app) })
+    abs.(-> value { proc.(Result.new(value)).fold(abs: abs, app: app) })
   end
 end
 
@@ -13,7 +13,7 @@ App = Struct.new(:left, :right) do
   end
 end
 
-Hole = Struct.new(:value) do
+Result = Struct.new(:value) do
   def fold(abs:, app:)
     value
   end
