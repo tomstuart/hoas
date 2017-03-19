@@ -24,21 +24,9 @@ expect('λx.λy.λx.x y z').to be_alpha_equivalent_to 'λy.λy.λx.x y z'
 expect('λx.λy.λx.x y z').to be_alpha_equivalent_to 'λy.λx.λy.y x z'
 expect('λx.λy.λx.x y z').to be_alpha_equivalent_to 'λx.λx.λy.y x z'
 
-def all_names
-  0.step.lazy.map { |n| n.times.inject('a') { |s| s.succ } }
-end
-
-def stringify(term)
-  names = all_names
-
-  term.fold \
-    abs: -> f { x = names.next; "(λ#{x}.#{f.(x)})" },
-    app: -> l, r { "(#{l} #{r})" }
-end
-
 RSpec::Matchers.define :look_like do |expected|
   match do |actual|
-    stringify(actual) == expected
+    HOAS.stringify(actual) == expected
   end
 end
 
@@ -47,7 +35,7 @@ expect(omega).to look_like '((λa.(a a)) (λb.(b b)))'
 
 RSpec::Matchers.define :be_the_term do |expected|
   match do |actual|
-    SExp.alpha_equivalent?(SExp.parse(stringify(actual)), SExp.parse(expected))
+    SExp.alpha_equivalent?(SExp.parse(HOAS.stringify(actual)), SExp.parse(expected))
   end
 end
 
