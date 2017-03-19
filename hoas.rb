@@ -4,13 +4,9 @@ include RSpec::Matchers
 require 'parser'
 require 'hoas/builder'
 require 'hoas/ast'
-require 'sexp/builder'
+require 'sexp'
 include HOAS
 include HOAS::AST
-
-def parse_to_sexp(string)
-  Parser.new(SExp::Builder.new).parse(string)
-end
 
 def alpha_equivalent?(a, b, a_env = {}, b_env = {})
   a_type, *a_args = a
@@ -40,7 +36,7 @@ end
 
 RSpec::Matchers.define :be_alpha_equivalent_to do |expected|
   match do |actual|
-    alpha_equivalent?(parse_to_sexp(expected), parse_to_sexp(actual))
+    alpha_equivalent?(SExp.parse(expected), SExp.parse(actual))
   end
 end
 
@@ -98,7 +94,7 @@ end
 
 RSpec::Matchers.define :be_the_term do |expected|
   match do |actual|
-    alpha_equivalent?(parse_to_sexp(stringify(actual)), parse_to_sexp(expected))
+    alpha_equivalent?(SExp.parse(stringify(actual)), SExp.parse(expected))
   end
 end
 
