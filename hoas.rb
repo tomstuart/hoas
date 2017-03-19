@@ -2,6 +2,8 @@ require 'rspec/expectations'
 include RSpec::Matchers
 
 require 'parser'
+require 'hoas/builder'
+include HOAS
 
 Abs = Struct.new(:proc) do
   def fold(abs:, app:)
@@ -18,20 +20,6 @@ end
 Hole = Struct.new(:value) do
   def fold(abs:, app:)
     value
-  end
-end
-
-class Builder
-  def build_abstraction(parameter, body)
-    -> env { Abs.new(-> x { body.(env.merge(parameter => x)) }) }
-  end
-
-  def build_application(left, right)
-    -> env { App.new(left.(env), right.(env)) }
-  end
-
-  def build_variable(name)
-    -> env { env[name] }
   end
 end
 
