@@ -111,8 +111,14 @@ def eval_once(term)
   end
 end
 
+RSpec::Matchers.define :be_the_term do |expected|
+  match do |actual|
+    alpha_equivalent?(parse_to_sexp(stringify(actual)), parse_to_sexp(expected))
+  end
+end
+
 term = parse '(λx.x) ((λx.x) λz.(λx.x) z)'
-expect(term).to look_like '((λa.a) ((λb.b) (λc.((λd.d) c))))'
-expect(eval_once(term)).to look_like '((λa.a) (λb.((λc.c) b)))'
-expect(eval_once(eval_once(term))).to look_like '(λa.((λb.b) a))'
+expect(term).to be_the_term '(λx.x) ((λx.x) λz.(λx.x) z)'
+expect(eval_once(term)).to be_the_term '(λx.x) λz.(λx.x) z'
+expect(eval_once(eval_once(term))).to be_the_term 'λz.(λx.x) z'
 expect{eval_once(eval_once(eval_once(term)))}.to raise_error NoRuleApplies
