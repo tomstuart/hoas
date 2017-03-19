@@ -1,5 +1,9 @@
+require 'hoas/ast'
+
 module HOAS
   class Builder
+    include AST
+
     def build_abstraction(parameter, body)
       -> env { Abs.new(-> x { body.(env.merge(parameter => x)) }) }
     end
