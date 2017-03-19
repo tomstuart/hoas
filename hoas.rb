@@ -28,14 +28,7 @@ def app(*args)
 end
 
 def all_names
-  Enumerator.new do |yielder|
-    name = 'a'
-
-    loop do
-      yielder.yield name
-      name = name.succ
-    end
-  end
+  0.step.lazy.map { |n| n.times.inject('a') { |s| s.succ } }
 end
 
 def stringify(term)
