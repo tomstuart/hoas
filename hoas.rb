@@ -104,7 +104,7 @@ end
 
 Abs = Struct.new(:proc) do
   def fold(abs:, app:)
-    abs.(-> value { proc.(Result.new(value)).fold(abs: abs, app: app) })
+    abs.(-> value { proc.(Hole.new(value)).fold(abs: abs, app: app) })
   end
 end
 
@@ -114,7 +114,7 @@ App = Struct.new(:left, :right) do
   end
 end
 
-Result = Struct.new(:value) do
+Hole = Struct.new(:value) do
   def fold(abs:, app:)
     value
   end
