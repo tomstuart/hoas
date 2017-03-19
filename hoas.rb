@@ -122,40 +122,20 @@ end
 
 class Builder
   def build_abstraction(parameter, body)
-    [:abs, parameter, body]
+    -> env { Abs.new(-> x { body.(env.merge(parameter => x)) }) }
   end
 
   def build_application(left, right)
-    [:app, left, right]
+    -> env { App.new(left.(env), right.(env)) }
   end
 
   def build_variable(name)
-    [:var, name]
-  end
-end
-
-def make_hoas(sexp, env = {})
-  type, *args = sexp
-
-  case type
-  when :abs
-    parameter, body = args
-
-    Abs.new(-> x { make_hoas(body, env.merge(parameter => x)) })
-  when :app
-    left, right = args
-
-    App.new(make_hoas(left, env), make_hoas(right, env))
-  when :var
-    name, = args
-
-    env[name]
+    -> env { env[name] }
   end
 end
 
 def parse(string)
-  sexp = Parser.new(Builder.new).parse(string)
-  make_hoas(sexp)
+  Parser.new(Builder.new).parse(string).({})
 end
 
 def all_names
