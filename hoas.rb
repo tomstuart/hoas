@@ -1,11 +1,9 @@
 require 'rspec/expectations'
 include RSpec::Matchers
 
-require 'parser'
-require 'hoas/builder'
+require 'hoas'
 require 'hoas/ast'
 require 'sexp'
-include HOAS
 include HOAS::AST
 
 RSpec::Matchers.define :be_alpha_equivalent_to do |expected|
@@ -28,10 +26,6 @@ expect('λx.λy.λx.x y z').to be_alpha_equivalent_to 'λy.λy.λx.x y z'
 expect('λx.λy.λx.x y z').to be_alpha_equivalent_to 'λy.λx.λy.y x z'
 expect('λx.λy.λx.x y z').to be_alpha_equivalent_to 'λx.λx.λy.y x z'
 
-def parse(string)
-  Parser.new(Builder.new).parse(string).({})
-end
-
 def all_names
   0.step.lazy.map { |n| n.times.inject('a') { |s| s.succ } }
 end
@@ -50,7 +44,7 @@ RSpec::Matchers.define :look_like do |expected|
   end
 end
 
-omega = parse '(λx.x x) λx.x x'
+omega = HOAS.parse '(λx.x x) λx.x x'
 expect(omega).to look_like '((λa.(a a)) (λb.(b b)))'
 
 NoRuleApplies = Class.new(StandardError)
@@ -72,7 +66,7 @@ RSpec::Matchers.define :be_the_term do |expected|
   end
 end
 
-term = parse '(λx.x) ((λx.x) λz.(λx.x) z)'
+term = HOAS.parse '(λx.x) ((λx.x) λz.(λx.x) z)'
 expect(term).to be_the_term '(λx.x) ((λx.x) λz.(λx.x) z)'
 expect(eval_once(term)).to be_the_term '(λx.x) λz.(λx.x) z'
 expect(eval_once(eval_once(term))).to be_the_term 'λz.(λx.x) z'
