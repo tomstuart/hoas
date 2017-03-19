@@ -2,9 +2,7 @@ require 'rspec/expectations'
 include RSpec::Matchers
 
 require 'hoas'
-require 'hoas/ast'
 require 'sexp'
-include HOAS::AST
 
 RSpec::Matchers.define :be_alpha_equivalent_to do |expected|
   match do |actual|
@@ -47,19 +45,6 @@ end
 omega = HOAS.parse '(λx.x x) λx.x x'
 expect(omega).to look_like '((λa.(a a)) (λb.(b b)))'
 
-NoRuleApplies = Class.new(StandardError)
-
-def eval_once(term)
-  raise NoRuleApplies unless term.is_a?(App) && term.left.is_a?(Abs)
-  left, right = term.left, term.right
-
-  if right.is_a?(Abs)
-    left.proc.(right)
-  else
-    App.new(left, eval_once(right))
-  end
-end
-
 RSpec::Matchers.define :be_the_term do |expected|
   match do |actual|
     SExp.alpha_equivalent?(SExp.parse(stringify(actual)), SExp.parse(expected))
@@ -68,6 +53,6 @@ end
 
 term = HOAS.parse '(λx.x) ((λx.x) λz.(λx.x) z)'
 expect(term).to be_the_term '(λx.x) ((λx.x) λz.(λx.x) z)'
-expect(eval_once(term)).to be_the_term '(λx.x) λz.(λx.x) z'
-expect(eval_once(eval_once(term))).to be_the_term 'λz.(λx.x) z'
-expect{eval_once(eval_once(eval_once(term)))}.to raise_error NoRuleApplies
+expect(HOAS.eval_once(term)).to be_the_term '(λx.x) λz.(λx.x) z'
+expect(HOAS.eval_once(HOAS.eval_once(term))).to be_the_term 'λz.(λx.x) z'
+expect{HOAS.eval_once(HOAS.eval_once(HOAS.eval_once(term)))}.to raise_error HOAS::NoRuleApplies
