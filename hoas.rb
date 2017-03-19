@@ -36,7 +36,7 @@ def stringify(term)
 
   term.fold \
     abs: -> f { x = names.next; "(λ#{x}.#{f.(x)})" },
-    app: -> l, r { "#{l} #{r}" }
+    app: -> l, r { "(#{l} #{r})" }
 end
 
 RSpec::Matchers.define :look_like do |expected|
@@ -46,7 +46,7 @@ RSpec::Matchers.define :look_like do |expected|
 end
 
 omega = app(abs(-> x { app(x, x) }), abs(-> x { app(x, x) }))
-expect(omega).to look_like '(λa.a a) (λb.b b)'
+expect(omega).to look_like '((λa.(a a)) (λb.(b b)))'
 
 NoRuleApplies = Class.new(StandardError)
 
@@ -63,7 +63,7 @@ end
 
 id = abs(-> x { x })
 term = app(id, app(id, abs(-> z { app(id, z) })))
-expect(term).to look_like '(λa.a) (λb.b) (λc.(λd.d) c)'
-expect(eval_once(term)).to look_like '(λa.a) (λb.(λc.c) b)'
-expect(eval_once(eval_once(term))).to look_like '(λa.(λb.b) a)'
+expect(term).to look_like '((λa.a) ((λb.b) (λc.((λd.d) c))))'
+expect(eval_once(term)).to look_like '((λa.a) (λb.((λc.c) b)))'
+expect(eval_once(eval_once(term))).to look_like '(λa.((λb.b) a))'
 expect{eval_once(eval_once(eval_once(term)))}.to raise_error NoRuleApplies
