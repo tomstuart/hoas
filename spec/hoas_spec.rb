@@ -40,17 +40,17 @@ RSpec.describe 'evaluation' do
     }
 
     specify { expect(term).to be_the_term '(λx.λy.x y) λz.z' }
-    specify { expect(HOAS.eval_once(term)).to be_the_term 'λy.(λz.z) y' }
-    specify { expect { HOAS.eval_once(HOAS.eval_once(term)) }.to raise_error HOAS::NoRuleApplies }
+    specify { expect(HOAS.eval(term)).to be_the_term 'λy.(λz.z) y' }
+    specify { expect { HOAS.eval(HOAS.eval(term)) }.to raise_error HOAS::NoRuleApplies }
   end
 
   describe 'a more complicated term' do
     let(:term) { HOAS.parse '((λx.x) λx.x) ((λx.x) λz.(λx.x) z)' }
 
     specify { expect(term).to be_the_term '((λx.x) λx.x) ((λx.x) λz.(λx.x) z)' }
-    specify { expect(HOAS.eval_once(term)).to be_the_term '(λx.x) ((λx.x) λz.(λx.x) z)' }
-    specify { expect(HOAS.eval_once(HOAS.eval_once(term))).to be_the_term '(λx.x) λz.(λx.x) z' }
-    specify { expect(HOAS.eval_once(HOAS.eval_once(HOAS.eval_once(term)))).to be_the_term 'λz.(λx.x) z' }
-    specify { expect { HOAS.eval_once(HOAS.eval_once(HOAS.eval_once(HOAS.eval_once(term)))) }.to raise_error HOAS::NoRuleApplies }
+    specify { expect(HOAS.eval(term)).to be_the_term '(λx.x) ((λx.x) λz.(λx.x) z)' }
+    specify { expect(HOAS.eval(HOAS.eval(term))).to be_the_term '(λx.x) λz.(λx.x) z' }
+    specify { expect(HOAS.eval(HOAS.eval(HOAS.eval(term)))).to be_the_term 'λz.(λx.x) z' }
+    specify { expect { HOAS.eval(HOAS.eval(HOAS.eval(HOAS.eval(term)))) }.to raise_error HOAS::NoRuleApplies }
   end
 end
