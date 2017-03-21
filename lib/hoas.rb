@@ -28,13 +28,15 @@ module HOAS
   NoRuleApplies = Class.new(StandardError)
 
   def self.eval_once(term)
-    raise NoRuleApplies unless term.is_a?(App) && term.left.is_a?(Abs)
+    raise NoRuleApplies unless term.is_a?(App)
     left, right = term.left, term.right
 
-    if right.is_a?(Abs)
-      left.proc.(right)
-    else
+    if left.is_a?(App)
+      App.new(eval_once(left), right)
+    elsif right.is_a?(App)
       App.new(left, eval_once(right))
+    else
+      left.proc.(right)
     end
   end
 end
