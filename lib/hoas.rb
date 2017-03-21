@@ -13,12 +13,16 @@ module HOAS
     0.step.lazy.map { |n| n.times.inject('a') { |s| s.succ } }
   end
 
-  def self.stringify(term)
-    names = all_names
-
-    term.fold \
-      abs: -> f { x = names.next; "(λ#{x}.#{f.(x)})" },
-      app: -> l, r { "(#{l} #{r})" }
+  def self.stringify(term, names = all_names)
+    case term
+    when Abs
+      name = names.next
+      "(λ#{name}.#{stringify(term.proc.call(Hole.new(name)), names)})"
+    when App
+      "(#{stringify(term.left, names)} #{stringify(term.right, names)})"
+    when Hole
+      term.value
+    end
   end
 
   NoRuleApplies = Class.new(StandardError)
