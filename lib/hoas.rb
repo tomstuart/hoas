@@ -17,7 +17,7 @@ module HOAS
     case term
     when Abs
       name = names.next
-      "(λ#{name}.#{stringify(term.proc.call(Hole.new(name)), names)})"
+      "(λ#{name}.#{stringify(term.proc.(Hole.new(name)), names)})"
     when App
       "(#{stringify(term.left, names)} #{stringify(term.right, names)})"
     when Hole
